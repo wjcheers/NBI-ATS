@@ -1,0 +1,25 @@
+{
+  "name": "NBI ATS",
+  "version": "0.5",
+  "description": "Finds link and email address in the web page",
+  "icons": { "128": "jecho.png" },
+  "background": { "scripts": ["background.js"] },
+  "content_scripts": [
+    { "matches": ["*://*/*"], "js": ["content_script.js"] }
+  ],
+  "options_page": "options.html",
+  "permissions": [
+    "tabs",
+    "*://*/*",
+    "<all_urls>",
+    "debugger", 
+    "alarms",
+    "storage"
+  ],
+  "page_action": {
+      "default_name": "NBI ATS",
+      "default_icon": "jecho.png",
+      "default_popup": "popup.html"
+  },
+  "manifest_version": 2
+}
