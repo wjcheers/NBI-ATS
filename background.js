@@ -12,10 +12,6 @@ var selectedAddress = null;
 var selectedId = null;
 
 function updateAddress(tabId, url) {
-  if((url == 'chrome://extensions/') || (url.indexOf("chrome.google.com") > 0)) {      
-      chrome.pageAction.show(tabId);
-  }
-  else {
       chrome.tabs.sendRequest(tabId, {}, function(address) {
         console.log("get address:" + address);
         addresses[tabId] = address;
@@ -28,7 +24,6 @@ function updateAddress(tabId, url) {
           }
         }
       });
-  }
 }
 
 function updateSelected(tabId) {
@@ -51,4 +46,9 @@ chrome.tabs.onSelectionChanged.addListener(function(tabId, info) {
 // Ensure the current selected tab is set up.
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   updateAddress(tabs[0].id, tabs[0].url);
+});
+
+chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
+    //console.log("get onHistoryStateUpdated");
+    //chrome.tabs.executeScript(null,{file:"content_script.js"});
 });
