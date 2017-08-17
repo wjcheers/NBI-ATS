@@ -33,15 +33,15 @@ if (window == top) {
                 urlATS = data.urlAddr;
                 console.log("urlATS: " + data.urlAddr);
         
-              var url = document.URL.replace(/\/$/, ""); // remove last /
-              /*url = url.replace(/^.*linkedin.com/, "");*/
-              var urlAddr = "";
+              var url = document.URL;
+              url = url.replace(/^.*linkedin.com/, "linkedin.com");
+              url = url.replace(/^.*github.com/, "github.com");
+              url = url.replace(/\?.*$/, "");
+              url = url.replace(/\/$/, "");
 
               //url part
               if( url.indexOf('linkedin.com') || url.indexOf('github.com')) {              
-                    urlAddr = urlATS;
                     
-                    //console.log('urlAddr: ' + urlAddr);
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function() {
                         if (xhr.readyState === 4) {
@@ -53,8 +53,8 @@ if (window == top) {
                             }
                         }
                     }
-                    xhr.open("GET", urlAddr + "?m=toolbar&a=checkLinkIsInSystem&link=" + url, true);
-                    console.log(urlAddr + "?m=toolbar&a=checkLinkIsInSystem&link=" + url);
+                    xhr.open("GET", urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url, true);
+                    console.log(urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url);
                     xhr.send();
               }
               
