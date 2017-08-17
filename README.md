@@ -9,4 +9,4 @@ Merge following change list to your openCATS:
 2. https://github.com/wjcheers/opencats_match/commit/ad16ad9f9eda438716f13199ea1928f8814986ac
 
 # Live Demo
-https://chrome.google.com/webstore/detail/nbi-ats/jdemfbjhbcbhgpklhefanhhijiipioho?hl=zh-TW
+https://chrome.google.com/webstore/detail/nbi-ats/jdemfbjhbcbhgpklhefanhhijiipioho
