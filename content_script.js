@@ -18,6 +18,7 @@ var linkAOuterCur = 0;
 var urlATS = "";
 var isFinding = 0;
 var isSearching = 0;
+var req = new XMLHttpRequest();;
 
 console.log("content script enter");
 
@@ -89,10 +90,8 @@ function searchCATSLoop() {
 function findLinkAndEmail() {
     //console.log("findLinkAndEmail");
     var i;
-    var url = document.URL;
-    var host = window.location.hostname;
 
-    if ((host.indexOf("linkedin.com") >= 0) && (url.indexOf('linkedin.com/in/') >= 0)) {
+    if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/in/') >= 0)) {
         //console.log("linkedin.com/in/");
         var linkOuter = document.getElementsByClassName("pv-contact-info__contact-item pv-contact-info__contact-link");
         for (i = 0; i < linkOuter.length; i++) {
@@ -112,7 +111,23 @@ function findLinkAndEmail() {
                 }
             }
         }
-    } else if ((host.indexOf("linkedin.com") >= 0) && (url.indexOf('linkedin.com/search/') >= 0)) {
+        var anchor = document.getElementsByClassName("pv-browsemap-section__member ember-view");
+        for (i = 0; i < anchor.length; i++) {
+            // Get the href
+            //console.log( anchor[i].getAttribute('href') + ' ' + anchor[i].getAttribute('href').substr(0, 4));
+            href = anchor[i].getAttribute('href'); //  href = /in/abcdef/
+            // Check if it's a /in/ link
+            if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                anchor[i].className += " NBI_ATS_Checked";
+                if (href.substr(0, 4) == '/in/') {
+                    linkAOuter[linkAOuterCnt] = anchor[i];
+                    linkA[linkAOuterCnt] = 'linkedin.com' + linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "");
+                    console.log("findLinkAndEmail linkedin.com/in/, link: " + linkA[linkAOuterCnt]);
+                    linkAOuterCnt++;
+                }
+            }
+        }
+    } else if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/search/') >= 0)) {
         //console.log("linkedin.com/search/");
         var anchor = document.getElementsByClassName("search-result__result-link ember-view");
         var href;
@@ -131,7 +146,7 @@ function findLinkAndEmail() {
                 }
             }
         }
-    } else if (host.indexOf('github.com') >= 0) {
+    } else if (window.location.hostname.indexOf('github.com') >= 0) {
         // Check each link, include search & personal page
         var anchor = document.getElementsByTagName('a');
         var href;
@@ -153,7 +168,7 @@ function findLinkAndEmail() {
         }
 
         // check after email parse
-        if (url.indexOf('github.com/search') >= 0) {
+        if (document.URL.indexOf('github.com/search') >= 0) {
             //console.log("linkedin.com/search/");
             var anchor = document.getElementById("user_search_results").getElementsByTagName("a");
             var href;
@@ -172,7 +187,8 @@ function findLinkAndEmail() {
                 }
             }
         }
-    } else if ((host.indexOf('google.com') >= 0) && (url.indexOf('search') >= 0)) {
+    } else if ((window.location.hostname.indexOf('google.com') >= 0) && (document.URL.indexOf('search') >= 0)) {
+        // TODO: remove zh_TW in the URL end......
         var anchor = document.getElementsByTagName('a');
         var href;
         var datahref;
@@ -183,23 +199,19 @@ function findLinkAndEmail() {
             datahref = anchor[i].getAttribute('data-href');
             href = anchor[i].getAttribute('href');
 
-            ldatahref.href = '';
+            ldatahref.href = href;
+            //console.log("my1: " + href);
             if (datahref) {
                 ldatahref.href = datahref;
-
+                //console.log("my2: " + datahref);
             }
 
             if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
                 //console.log(anchor[i]);
                 anchor[i].className += " NBI_ATS_Checked";
-                if (anchor[i].hostname.indexOf("linkedin.com") >= 0) {
+                if ((ldatahref.hostname.indexOf("linkedin.com") >= 0) && (ldatahref.pathname.indexOf("/in/") >= 0)){
                     linkAOuter[linkAOuterCnt] = anchor[i];
-                    linkA[linkAOuterCnt] = linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "").replace(/^.*linkedin.com/, "linkedin.com");
-                    console.log("findLinkAndEmail google.com*/search?, link: " + linkA[linkAOuterCnt]);
-                    linkAOuterCnt++;
-                } else if (datahref && ldatahref.hostname.indexOf("linkedin.com") >= 0) {
-                    linkAOuter[linkAOuterCnt] = anchor[i];
-                    linkA[linkAOuterCnt] = linkAOuter[linkAOuterCnt].getAttribute('data-href').replace(/\/$/, "").replace(/^.*linkedin.com/, "linkedin.com");
+                    linkA[linkAOuterCnt] = '/in/' + ldatahref.pathname.split('/')[2];//
                     console.log("findLinkAndEmail google.com*/search?, link: " + linkA[linkAOuterCnt]);
                     linkAOuterCnt++;
                 }
@@ -212,9 +224,6 @@ function findLinkAndEmail() {
 
 // this is for open the linkedin contact information
 function triggerNext() {
-    // wait 0~1 seconds
-    //var wait = Math.random() * 1000 * 1;
-    var wait = 1000 * 1;
     triggerNextCnt++;
     if (triggerNextCnt % 5 == 0) {
         console.log("triggerNext: " + triggerNextCnt);
@@ -229,7 +238,7 @@ function triggerNext() {
         }
         //parseEmail();
         triggerNext();
-    }, wait);
+    }, 1000); // 1 sec
 }
 
 
@@ -260,8 +269,7 @@ var getElementsByAttribute = function (el, attr, value) {
 };
 
 function clickLinkedinContactSeeMore() {
-    var url = document.URL;
-    if (url.indexOf('linkedin.com/in/') >= 0) {
+    if (document.URL.indexOf('linkedin.com/in/') >= 0) {
         var el = document.createElement('div');
         el.innerHTML = document.body.innerHTML;
         buttonContactSeeMore = getElementsByAttribute(el, 'data-control-name', "contact_see_more");
@@ -297,20 +305,25 @@ function handleEmailResponse() {
     }
     console.log(doc);
     //console.log(req);
-    var url = document.URL;
-    if (url.indexOf('linkedin.com/in/') >= 0) {
+    if (document.URL.indexOf('linkedin.com/in/') >= 0) {
         if (doc.indexOf(":candidateID=") >= 0) {
             if (emailOuterCnt) {
-                emailOuter[emailOuterCur++].outerHTML +=
+                emailOuter[emailOuterCur].outerHTML +=
                     '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             }
+        } else if (doc.indexOf(":0") >= 0) {
+            // not found
         } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
             if (emailOuterCnt) {
-                emailOuter[emailOuterCur++].outerHTML +=
+                emailOuter[emailOuterCur].outerHTML +=
                     '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
             }
         }
-    } else if (url.indexOf('github.com') >= 0) {
+        else {
+            console.log('unexpected...');
+        }
+        emailOuterCur++;
+    } else if (document.URL.indexOf('github.com') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
                 emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
@@ -329,15 +342,13 @@ function handleEmailResponse() {
 }
 
 function checkEmailInATS(email) {
-    var curURL = urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email;
+    console.log("(" + emailOuterCur + ")" + "checkEmailInATS: " + urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email);
 
-    console.log("checkEmailInATS: " + curURL);
-
-    req = new XMLHttpRequest();
+    //req = new XMLHttpRequest();
 
     req.onload = handleEmailResponse;
     req.onerror = handleEmailError;
-    req.open("GET", curURL, true);
+    req.open("GET", urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email, true);
     req.send(null);
 }
 
@@ -356,13 +367,13 @@ function handleLinkResponse() {
         return;
     }
     console.log(doc);
-    //console.log(req);
-    var url = document.URL;
     //if (url.indexOf('linkedin.com/') >= 0) { // include /in/ and /search/
     if (linkAOuterCur < linkAOuterCnt) {
         if (doc.indexOf(":candidateID=") >= 0) {
             linkAOuter[linkAOuterCur].outerHTML +=
                 '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+        } else if (doc.indexOf(":0") >= 0) {
+            // not found...
         } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
             linkAOuter[linkAOuterCur].outerHTML +=
                 '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
@@ -376,14 +387,13 @@ function handleLinkResponse() {
 }
 
 function checkLinkInATS(link) {
-    var curURL = urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link;
-    console.log("checkLinkInATS: " + curURL);
+    console.log("checkLinkInATS: " + urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link);
 
-    req = new XMLHttpRequest();
+    //req = new XMLHttpRequest();
 
     req.onload = handleLinkResponse;
     req.onerror = handleLinkError;
-    req.open("GET", curURL, true);
+    req.open("GET", urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link, true);
     req.send(null);
 }
 
