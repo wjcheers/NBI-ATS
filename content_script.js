@@ -18,7 +18,10 @@ var linkAOuterCur = 0;
 var urlATS = "";
 var isFinding = 0;
 var isSearching = 0;
-var req = new XMLHttpRequest();;
+var req = new XMLHttpRequest();
+var linkedinElement;
+var linkedinDescription;
+var linkedinSummary;
 
 console.log("content script enter");
 
@@ -111,6 +114,7 @@ function findLinkAndEmail() {
                 }
             }
         }
+        // linkedin personal page, sidebar recommand connections
         var anchor = document.getElementsByClassName("pv-browsemap-section__member ember-view");
         for (i = 0; i < anchor.length; i++) {
             // Get the href
@@ -222,6 +226,59 @@ function findLinkAndEmail() {
     }
 }
 
+function checkLinkedinSummary() {
+
+    if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/in/') >= 0)) {
+        
+        linkedinDescription = "";
+        linkedinSummary = ""
+        
+        linkedinElement = document.getElementsByClassName("pv-entity__description");
+        for (i = 0; i < linkedinElement.length; i++) {
+            if (linkedinElement[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                linkedinElement[i].className += " NBI_ATS_Checked";
+                if( linkedinDescription == "") {
+                    linkedinDescription = linkedinElement[i].innerText;
+                    console.log("checkLinkedinSummary description: " + linkedinDescription);
+                }
+            }
+        }
+
+        linkedinElement = document.getElementsByClassName("pv-top-card-section__summary-text");
+        for (i = 0; i < linkedinElement.length; i++) {
+            if (linkedinElement[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                linkedinElement[i].className += " NBI_ATS_Checked";
+                if( linkedinSummary == "") {
+                    linkedinSummary = linkedinElement[i].innerText;
+                    console.log("checkLinkedinSummary summary: " + linkedinSummary);
+                }
+            }
+        }
+        
+        linkedinSummary = linkedinSummary + linkedinDescription;
+        
+        if(linkedinSummary != "") {
+            
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    console.log("xhr.readyState === 4" + xhr.responseText);
+
+                    /*
+                    if (xhr.responseText.indexOf(":candidateID=") >= 0) {
+                        var candUrl = urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + xhr.responseText.substr(xhr.responseText.indexOf(":candidateID=") + ":candidateID=".length);
+                        sendResponse(candUrl);
+                    }
+                    */
+                }
+            }
+            xhr.open("GET", urlATS + "?m=toolbar&a=checkLinkedin&summary=" + linkedinSummary, true);
+            console.log(urlATS + "?m=toolbar&a=checkLinkedin&summary=" + linkedinSummary);
+            xhr.send();
+        }
+    }
+}
+
 // this is for open the linkedin contact information
 function triggerNext() {
     triggerNextCnt++;
@@ -230,13 +287,11 @@ function triggerNext() {
     }
     setTimeout(function () {
         clickLinkedinContactSeeMore();
-        //if(!isFinding) {
         findLinkAndEmail();
-        //}
+        checkLinkedinSummary();
         if (!isSearching) {
             searchCATSLoop();
         }
-        //parseEmail();
         triggerNext();
     }, 1000); // 1 sec
 }
