@@ -96,7 +96,9 @@ function findLinkAndEmail() {
 
     if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/in/') >= 0)) {
         //console.log("linkedin.com/in/");
-        var linkOuter = document.getElementsByClassName("pv-contact-info__contact-item pv-contact-info__contact-link");
+        //var linkOuter = document.getElementsByClassName("pv-contact-info__contact-item pv-contact-info__contact-link");
+        // 2018/1/8 linkedin change the class name.
+        var linkOuter = document.getElementsByClassName("pv-contact-info__contact-link");
         for (i = 0; i < linkOuter.length; i++) {
             //console.log("findLinkAndEmail linkedin.com/in/, email: " + linkOuter[i].innerText);
             if (linkOuter[i].className.indexOf("NBI_ATS_Checked") < 0) {
