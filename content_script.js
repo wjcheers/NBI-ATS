@@ -45,8 +45,17 @@ if (window == top) {
                 console.log(url);
 
                 //url part
-                if (url.indexOf('linkedin.com') >= 0 || url.indexOf('github.com') >= 0) {
+                if (url.indexOf('linkedin.com') >= 0 ||
+                    url.indexOf('plus.google.com') >= 0 ||
+                    url.indexOf('twitter.com') >= 0 ||
+                    url.indexOf('github.com') >= 0) {
 
+                    // maimai.cn format:     "?" is not handled now.
+                    // https://maimai.cn/contact/share/card?u=2hhijfx6u5m7r
+                    
+                    // h.liepin.cn format:    "?" is not handled now.
+                    // https://h.liepin.com/resume/showresumedetail?res_id_encode=72ecd0edWffcb03c5
+                    
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4) {
@@ -70,6 +79,8 @@ if (window == top) {
                 } else if (url.indexOf('github.com') >= 0) {
                     triggerNext();
                 } else if ((url.indexOf('google.com') >= 0) && (url.indexOf('search') >= 0)) {
+                    triggerNext();
+                } else if (url.indexOf('mail.google.com') >= 0) {
                     triggerNext();
                 }
             }
@@ -220,6 +231,28 @@ function findLinkAndEmail() {
                     linkA[linkAOuterCnt] = '/in/' + ldatahref.pathname.split('/')[2];//
                     console.log("findLinkAndEmail google.com*/search?, link: " + linkA[linkAOuterCnt]);
                     linkAOuterCnt++;
+                }
+            }
+        }
+    } else if (window.location.hostname.indexOf('mail.google.com') >= 0) {
+        var anchor = document.getElementsByTagName('span');
+        var datahref;
+        var lhref;
+        var ldatahref;
+        var email;
+        ldatahref = document.createElement("a");
+        for (i = 0; i < anchor.length; i++) {
+            email = anchor[i].getAttribute('email');
+
+            if (email) {
+                if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                    anchor[i].className += " NBI_ATS_Checked";
+                    if (validateEmail(email)) {
+                        console.log("findLinkAndEmail mail.google.com, email: " + email);
+                        emailOuter[emailOuterCnt] = anchor[i];
+                        emailA[emailOuterCnt] = email;
+                        emailOuterCnt++;
+                    }
                 }
             }
         }
@@ -393,6 +426,24 @@ function handleEmailResponse() {
             }
             emailOuterCur++;
         }
+    } else if (document.URL.indexOf('mail.google.com') >= 0) {
+        if (doc.indexOf(":candidateID=") >= 0) {
+            if (emailOuterCnt) {
+                emailOuter[emailOuterCur].outerHTML +=
+                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+            }
+        } else if (doc.indexOf(":0") >= 0) {
+            // not found
+        } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
+            if (emailOuterCnt) {
+                emailOuter[emailOuterCur].outerHTML +=
+                    '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
+            }
+        }
+        else {
+            console.log('unexpected...');
+        }
+        emailOuterCur++;
     }
     isSearching = 0;
     searchCATSLoop();
