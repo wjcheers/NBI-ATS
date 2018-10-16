@@ -38,23 +38,39 @@ if (window == top) {
                 console.log("urlATS: " + data.urlAddr);
 
                 var url = document.URL;
-                url = url.replace(/\?.*$/, "");
-                url = url.replace(/\/$/, "");
-                url = url.replace(/^.*linkedin.com/, "linkedin.com");
-                url = url.replace(/^.*github.com/, "github.com");
+                url = window.location.hostname + window.location.pathname;
+                
+                if (url.indexOf('maimai.cn/contact/detail/') >= 0 ||
+                    url.indexOf('linkedin.com') >= 0 ||
+                    url.indexOf('plus.google.com') >= 0 ||
+                    url.indexOf('twitter.com') >= 0 ||
+                    url.indexOf('github.com') >= 0)
+                {
+                    url = url.replace(/^.*linkedin.com/, "linkedin.com");
+                    url = url.replace(/^.*github.com/, "github.com");
+                    url = url.replace(/\/$/, "");
+                    //url = url.replace(/\?.*$/, ""); already handle by hostname + pathname
+                }
+                else if(url.indexOf('maimai.cn/contact/share/card') >= 0)
+                {
+                    var params = (new URL(document.URL)).searchParams;
+                    url += '?u=' + params.get("u");
+                }
+                else if(url.indexOf('h.liepin.com/resume/showresumedetail') >= 0)
+                {
+                    var params = (new URL(document.URL)).searchParams;
+                    url = 'res_id_encode=' + params.get("res_id_encode");
+                }
                 console.log(url);
 
                 //url part
-                if (url.indexOf('linkedin.com') >= 0 ||
+                if (document.URL.indexOf('h.liepin.com/resume/showresumedetail') >= 0 ||
+                    url.indexOf('maimai.cn/contact/detail/') >= 0 ||
+                    url.indexOf('maimai.cn/contact/share/card') >= 0 ||
+                    url.indexOf('linkedin.com') >= 0 ||
                     url.indexOf('plus.google.com') >= 0 ||
                     url.indexOf('twitter.com') >= 0 ||
                     url.indexOf('github.com') >= 0) {
-
-                    // maimai.cn format:     "?" is not handled now.
-                    // https://maimai.cn/contact/share/card?u=2hhijfx6u5m7r
-                    
-                    // h.liepin.cn format:    "?" is not handled now.
-                    // https://h.liepin.com/resume/showresumedetail?res_id_encode=72ecd0edWffcb03c5
                     
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
@@ -81,6 +97,10 @@ if (window == top) {
                 } else if ((url.indexOf('google.com') >= 0) && (url.indexOf('search') >= 0)) {
                     triggerNext();
                 } else if (url.indexOf('mail.google.com') >= 0) {
+                    triggerNext();
+                } else if (url.indexOf('maimai.cn') >= 0) {
+                    triggerNext();
+                } else if ((url.indexOf('h.liepin.com') >= 0) && (url.indexOf('resumemanage') >= 0)) {
                     triggerNext();
                 }
             }
@@ -159,6 +179,22 @@ function findLinkAndEmail() {
                     linkAOuter[linkAOuterCnt] = anchor[i];
                     linkA[linkAOuterCnt] = 'linkedin.com' + linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "");
                     console.log("findLinkAndEmail linkedin.com/search/, link: " + linkA[linkAOuterCnt]);
+                    linkAOuterCnt++;
+                }
+            }
+        }
+    } else if ((window.location.hostname.indexOf("h.liepin.com") >= 0) && (document.URL.indexOf('liepin.com/resumemanage/') >= 0)) {
+        //console.log("linkedin.com/search/");
+        var anchor = document.getElementsByTagName('a');
+        var classname;
+        for (i = 0; i < anchor.length; i++) {
+            classname = anchor[i].getAttribute('class');
+            if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                anchor[i].className += " NBI_ATS_Checked";
+                if (classname && classname.substr(0, 9) == 'user-name') {
+                    linkAOuter[linkAOuterCnt] = anchor[i];
+                    linkA[linkAOuterCnt] = linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "");
+                    console.log("findLinkAndEmail h.liepin.com/resumemanage/, link: " + linkA[linkAOuterCnt]);
                     linkAOuterCnt++;
                 }
             }
@@ -256,11 +292,29 @@ function findLinkAndEmail() {
                 }
             }
         }
+    } else if (window.location.hostname.indexOf('maimai.cn') >= 0) {        
+        var email;
+        var anchor = document.getElementsByClassName("icon_email_gray");
+        for (i = 0; i < anchor.length; i++) {
+            email = anchor[i].innerText;
+            if (email) {
+                if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                    anchor[i].className += " NBI_ATS_Checked";
+                    if (validateEmail(email)) {
+                        console.log("findLinkAndEmail maimai, email: " + email);
+                        emailOuter[emailOuterCnt] = anchor[i];
+                        emailA[emailOuterCnt] = email;
+                        emailOuterCnt++;
+                    }
+                }
+            }
+        }
     } else {
         //console.log("ignore url");
     }
 }
 
+/* not ready function
 function checkLinkedinSummary() {
 
     if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/in/') >= 0)) {
@@ -298,13 +352,14 @@ function checkLinkedinSummary() {
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     console.log("xhr.readyState === 4" + xhr.responseText);
-
+*/
                     /*
                     if (xhr.responseText.indexOf(":candidateID=") >= 0) {
                         var candUrl = urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + xhr.responseText.substr(xhr.responseText.indexOf(":candidateID=") + ":candidateID=".length);
                         sendResponse(candUrl);
                     }
                     */
+/*
                 }
             }
             xhr.open("GET", urlATS + "?m=toolbar&a=checkLinkedin&summary=" + linkedinSummary, true);
@@ -313,6 +368,7 @@ function checkLinkedinSummary() {
         }
     }
 }
+*/
 
 // this is for open the linkedin contact information
 function triggerNext() {
@@ -321,9 +377,9 @@ function triggerNext() {
         console.log("triggerNext: " + triggerNextCnt);
     }
     setTimeout(function () {
-        clickLinkedinContactSeeMore();
+        //clickLinkedinContactSeeMore(); linkedin change the html code, 
         findLinkAndEmail();
-        checkLinkedinSummary();
+        //checkLinkedinSummary();
         if (!isSearching) {
             searchCATSLoop();
         }
@@ -358,6 +414,7 @@ var getElementsByAttribute = function (el, attr, value) {
     return match;
 };
 
+/*
 function clickLinkedinContactSeeMore() {
     if (document.URL.indexOf('linkedin.com/in/') >= 0) {
         var el = document.createElement('div');
@@ -373,6 +430,7 @@ function clickLinkedinContactSeeMore() {
     }
     return 0;
 }
+*/
 
 function validateEmail(email) {
     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -444,6 +502,19 @@ function handleEmailResponse() {
             console.log('unexpected...');
         }
         emailOuterCur++;
+    } else if (document.URL.indexOf('maimai.cn') >= 0) {
+        if (emailOuterCur < emailOuterCnt) {
+            if (doc.indexOf(":candidateID=") >= 0) {
+                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+            } else if (doc.indexOf(emailOuter[emailOuterCur].innerText + ":0") >= 0) {
+                //emailOuter[emailOuterCur].outerHTML += 'NBI ATS: Not found'; 
+            } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
+                emailOuter[emailOuterCur].outerHTML +=
+                    '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
+
+            }
+            emailOuterCur++;
+        }
     }
     isSearching = 0;
     searchCATSLoop();
