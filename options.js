@@ -50,7 +50,7 @@ function saveChanges() {
               });
         });
     }
-    else if(lastChar === '/') {
+    else if(urlAddrA.slice(-1) === '/') {
         console.log("urlBtn /");
         urlText = urlAddrA + "index.php";
         storageObjectName['urlAddr'] = urlText;

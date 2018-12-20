@@ -77,15 +77,19 @@ if (window == top) {
                         if (xhr.readyState === 4) {
                             //console.log("xhr.readyState === 4" + xhr.responseText);
 
+                            var candUrl = '';
                             if (xhr.responseText.indexOf(":candidateID=") >= 0) {
-                                var candUrl = urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + xhr.responseText.substr(xhr.responseText.indexOf(":candidateID=") + ":candidateID=".length);
-                                sendResponse(candUrl);
+                                candUrl = urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + xhr.responseText.substr(xhr.responseText.indexOf(":candidateID=") + ":candidateID=".length);
                             }
+                            sendResponse(candUrl);
                         }
                     }
                     xhr.open("GET", urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url, true);
                     console.log(urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url);
                     xhr.send();
+                }
+                else {
+                    sendResponse('');
                 }
 
                 if (url.indexOf('linkedin.com/in/') >= 0) {
@@ -549,8 +553,14 @@ function handleLinkResponse() {
     //if (url.indexOf('linkedin.com/') >= 0) { // include /in/ and /search/
     if (linkAOuterCur < linkAOuterCnt) {
         if (doc.indexOf(":candidateID=") >= 0) {
-            linkAOuter[linkAOuterCur].outerHTML +=
-                '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+            if (linkAOuter[linkAOuterCur].parentNode) {
+                // https://stackoverflow.com/questions/36622784/in-javascript-why-does-setting-outerhtml-on-an-element-set-its-parentnode-to-n
+                // https://developer.mozilla.org/en-US/docs/Web/API/Element/outerHTML#Notes
+                // If the element has no parent element, setting its outerHTML property will not change it or its descendants.
+                // Many browsers will also throw an exception. 
+                linkAOuter[linkAOuterCur].outerHTML +=
+                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+            }
         } else if (doc.indexOf(":0") >= 0) {
             // not found...
         } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
