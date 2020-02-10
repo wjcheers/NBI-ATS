@@ -1,6 +1,6 @@
 {
   "name": "NBI ATS",
-  "version": "0.18",
+  "version": "0.19",
   "description": "Finds link and email address in the web page",
   "icons": { "128": "jecho.png" },
   "background": { "scripts": ["background.js"] },

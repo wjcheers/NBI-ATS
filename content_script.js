@@ -44,7 +44,8 @@ if (window == top) {
                     url.indexOf('linkedin.com') >= 0 ||
                     url.indexOf('plus.google.com') >= 0 ||
                     url.indexOf('twitter.com') >= 0 ||
-                    url.indexOf('github.com') >= 0)
+                    url.indexOf('github.com') >= 0 ||
+                    url.indexOf('behance.net') >= 0)
                 {
                     url = url.replace(/^.*linkedin.com/, "linkedin.com");
                     url = url.replace(/^.*github.com/, "github.com");
@@ -70,7 +71,8 @@ if (window == top) {
                     url.indexOf('linkedin.com') >= 0 ||
                     url.indexOf('plus.google.com') >= 0 ||
                     url.indexOf('twitter.com') >= 0 ||
-                    url.indexOf('github.com') >= 0) {
+                    url.indexOf('github.com') >= 0 ||
+                    url.indexOf('behance.net') >= 0) {
                     
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
