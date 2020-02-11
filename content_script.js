@@ -72,7 +72,8 @@ if (window == top) {
                     url.indexOf('plus.google.com') >= 0 ||
                     url.indexOf('twitter.com') >= 0 ||
                     url.indexOf('github.com') >= 0 ||
-                    url.indexOf('behance.net') >= 0) {
+                    url.indexOf('behance.net') >= 0 ||
+                    url.indexOf('cakeresume.com') >= 0) {
                     
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
