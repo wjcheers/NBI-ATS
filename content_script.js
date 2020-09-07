@@ -75,6 +75,7 @@ if (window == top) {
                     url.indexOf('behance.net') >= 0 ||
                     url.indexOf('cakeresume.com') >= 0) {
                     
+                    /*
                     var xhr = new XMLHttpRequest();
                     xhr.onreadystatechange = function () {
                         if (xhr.readyState === 4) {
@@ -89,10 +90,15 @@ if (window == top) {
                     }
                     xhr.open("GET", urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url, true);
                     console.log(urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + url);
-                    xhr.send();
+                    //xhr.send();    
+                    */                
+                    chrome.runtime.sendMessage(
+                        {contentScriptQuery: "currenturl", tabIdPar: req.tabIdPar, urlATS: urlATS, item: "?m=toolbar&a=checkLinkIsInSystem&link=" + url},
+                        price => 1);
                 }
-                else {
-                    sendResponse('');
+                else {               
+                    chrome.runtime.sendMessage(
+                        {contentScriptQuery: "currenturlnotfound", tabIdPar: req.tabIdPar});
                 }
 
                 if (url.indexOf('linkedin.com/in/') >= 0) {
@@ -112,6 +118,8 @@ if (window == top) {
                 }
             }
         });
+        sendResponse();
+        return true;
     });
 }
 
@@ -119,11 +127,13 @@ function searchCATSLoop() {
     if (!isSearching) {
         if (emailOuterCur < emailOuterCnt) {
             isSearching = 1;
-            checkEmailInATS(emailA[emailOuterCur]);
+            //checkEmailInATS(emailA[emailOuterCur]);
+            checkEmailInATSBackground(emailA[emailOuterCur]);
         } else if (linkAOuterCur < linkAOuterCnt) {
             isSearching = 1;
             console.log('linkAOuterCur: ' + linkAOuterCur);
-            checkLinkInATS(linkA[linkAOuterCur]);
+            //checkLinkInATS(linkA[linkAOuterCur]);
+            checkLinkInATSBackground(linkA[linkAOuterCur]);
         }
     }
 }
@@ -444,22 +454,25 @@ function validateEmail(email) {
     return re.test(email);
 }
 
+/*
 function handleEmailError() {
     console.log('handleEmailResponse: handleEmailError');
+    emailOuterCur++;
     isSearching = 0;
     searchCATSLoop();
 }
+*/
 
 // Handles parsing the feed data we got back from XMLHttpRequest.
-function handleEmailResponse() {
+function handleEmailResponse(text) {
     console.log('handleEmailResponse');
-    var doc = req.responseText;
+    var doc = text;
     if (!doc) {
         console.log('not_a_valid_url');
         return;
     }
-    console.log(doc);
-    //console.log(req);
+    console.log(emailOuterCur + '/' + emailOuterCnt + ': ' + text);
+    
     if (document.URL.indexOf('linkedin.com/in/') >= 0) {
         if (doc.indexOf(":candidateID=") >= 0) {
             if (emailOuterCnt) {
@@ -477,7 +490,6 @@ function handleEmailResponse() {
         else {
             console.log('unexpected...');
         }
-        emailOuterCur++;
     } else if (document.URL.indexOf('github.com') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
@@ -489,7 +501,6 @@ function handleEmailResponse() {
                     '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
 
             }
-            emailOuterCur++;
         }
     } else if (document.URL.indexOf('mail.google.com') >= 0) {
         if (doc.indexOf(":candidateID=") >= 0) {
@@ -508,7 +519,6 @@ function handleEmailResponse() {
         else {
             console.log('unexpected...');
         }
-        emailOuterCur++;
     } else if (document.URL.indexOf('maimai.cn') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
@@ -520,13 +530,14 @@ function handleEmailResponse() {
                     '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
 
             }
-            emailOuterCur++;
         }
     }
+    emailOuterCur++;
     isSearching = 0;
     searchCATSLoop();
 }
 
+/*
 function checkEmailInATS(email) {
     console.log("(" + emailOuterCur + ")" + "checkEmailInATS: " + urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email);
 
@@ -534,25 +545,44 @@ function checkEmailInATS(email) {
 
     req.onload = handleEmailResponse;
     req.onerror = handleEmailError;
+
     req.open("GET", urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email, true);
     req.send(null);
 }
+*/
 
+
+function checkEmailInATSBackground(email) {
+    console.log("checkEmailInATSBackground: " + urlATS + "?m=toolbar&a=checkEmailIsInSystem&email=" + email);
+     
+    chrome.runtime.sendMessage(
+        {contentScriptQuery: "email", urlATS: urlATS, item: "?m=toolbar&a=checkEmailIsInSystem&email=" + email},
+        function(responseText) {
+            console.log("checkEmailInATSBackground responseText: " + responseText);
+            handleEmailResponse(responseText);
+            return true;
+        }
+    );
+}
+
+/*
 function handleLinkError() {
     console.log('handleLinkResponse: handleLinkError');
+    linkAOuterCur++;
     isSearching = 0;
     searchCATSLoop();
 }
+*/
 
 // Handles parsing the feed data we got back from XMLHttpRequest.
-function handleLinkResponse() {
+function handleLinkResponse(text) {
     console.log('handleLinkResponse');
-    var doc = req.responseText;
+    var doc = text;
     if (!doc) {
         console.log('not_a_valid_url');
         return;
     }
-    console.log(doc);
+    console.log(linkAOuterCur + '/' + linkAOuterCnt + ': ' + text);
     //if (url.indexOf('linkedin.com/') >= 0) { // include /in/ and /search/
     if (linkAOuterCur < linkAOuterCnt) {
         if (doc.indexOf(":candidateID=") >= 0) {
@@ -570,14 +600,15 @@ function handleLinkResponse() {
             linkAOuter[linkAOuterCur].outerHTML +=
                 '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
         }
-        linkAOuterCur++;
     }
     //console.log("handleLinkResponse: Cnt: " + linkAOuterCnt + ", Cur: " + linkAOuterCur);
     //}
+    linkAOuterCur++;
     isSearching = 0;
     searchCATSLoop();
 }
 
+/*
 function checkLinkInATS(link) {
     console.log("checkLinkInATS: " + urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link);
 
@@ -587,6 +618,20 @@ function checkLinkInATS(link) {
     req.onerror = handleLinkError;
     req.open("GET", urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link, true);
     req.send(null);
+}
+*/
+
+function checkLinkInATSBackground(link) {
+    console.log("checkLinkInATSBackground: " + urlATS + "?m=toolbar&a=checkLinkIsInSystem&link=" + link);
+     
+    chrome.runtime.sendMessage(
+        {contentScriptQuery: "link", urlATS: urlATS, item: "?m=toolbar&a=checkLinkIsInSystem&link=" + link},
+        function(responseText) {
+            console.log("checkLinkInATSBackground responseText: " + responseText);
+            handleLinkResponse(responseText);
+            return true;
+        }
+    );
 }
 
 

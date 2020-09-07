@@ -1,6 +1,6 @@
 {
   "name": "NBI ATS",
-  "version": "0.20",
+  "version": "0.22",
   "description": "Finds link and email address in the web page",
   "icons": { "128": "jecho.png" },
   "background": { "scripts": ["background.js"] },
@@ -10,8 +10,6 @@
   "options_page": "options.html",
   "permissions": [
     "tabs",
-    "debugger", 
-    "alarms",
     "storage",
     "webNavigation",
     "*://*.liepin.com/*",

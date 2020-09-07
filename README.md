@@ -18,7 +18,8 @@ for openCATS 0.9.2:
 5. https://github.com/wjcheers/opencats_match/commit/3e658bed73f7c9a604e24c528b2e21b65b06c92a
 
 for openCATS 0.9.4:
-https://github.com/wjcheers/OpenCATS/commit/465c3686a90eb0f348790fe41769634208ee8b3c
+1. https://github.com/wjcheers/OpenCATS/commit/465c3686a90eb0f348790fe41769634208ee8b3c
+2. https://github.com/wjcheers/opencats_match/commit/49508bb92d30ab3b423b45afeb58cbd1b91e2417
 
 # Chrome Extension NBI-ATS Live Version
 https://chrome.google.com/webstore/detail/nbi-ats/jdemfbjhbcbhgpklhefanhhijiipioho

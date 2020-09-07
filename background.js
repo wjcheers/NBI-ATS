@@ -11,22 +11,73 @@ var addresses = {};
 var selectedAddress = null;
 var selectedId = null;
 
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    console.log("backend script chrome.runtime.onMessage.addListener");
+    console.log("backend script request");
+    if (request.contentScriptQuery == "currenturl") {
+      console.log("backend script currenturl");
+      var url = request.urlATS +request.item;
+      fetch(url)
+          .then(response => response.text())
+          .then(function(text) {
+                console.log("backend script text:　" + text);
+                var candUrl = '';
+                if (text.indexOf(":candidateID=") >= 0) {
+                    candUrl = request.urlATS + '?m=candidates&a=show&candidateID=' + text.substr(text.indexOf(":candidateID=") + ":candidateID=".length);
+                }
+                console.log("Response: " + candUrl);
+                addresses[request.tabIdPar] = candUrl;
+                updateSelected(request.tabIdPar);
+          })
+          .catch((err) => {
+            console.log('backend script error:', err);
+          })
+    }
+    else if (request.contentScriptQuery == "currenturlnotfound") {
+        console.log('backend script currenturlnotfound');
+        addresses[request.tabIdPar] = '';
+        updateSelected(request.tabIdPar);
+    }
+    else if (request.contentScriptQuery == "link") {
+      console.log("backend script link");
+      var url = request.urlATS +request.item;
+      fetch(url)
+          .then(response => response.text())
+          .then(function(text) {
+                sendResponse(text);
+          })
+          .catch((err) => {
+                sendResponse('error: ' + err);
+                console.log('backend script error:', err);
+          })
+    }
+    else if (request.contentScriptQuery == "email") {
+      console.log("backend script email");
+      var url = request.urlATS +request.item;
+      fetch(url)
+          .then(response => response.text())
+          .then(function(text) {
+                sendResponse(text);
+          })
+          .catch((err) => {
+                sendResponse('error: ' + err);
+                console.log('backend script error:', err);
+          })
+    }
+    return true;
+  }
+);
+    
+
 function updateAddress(tabIdPar, url) {
-      chrome.tabs.sendRequest(tabIdPar, {}, function(address) {
-        console.log("get address:" + address + " id: " + tabIdPar);
-        addresses[tabIdPar] = address;
-        /*
-        if (!address) {
-          chrome.pageAction.hide(tabIdPar);
-        } else {
-          chrome.pageAction.show(tabIdPar);
-          if (selectedId == tabIdPar) {
-            updateSelected(tabIdPar);
-          }
-        }
-        */
-        updateSelected(tabIdPar);
+      chrome.tabs.sendRequest(tabIdPar, {tabIdPar: tabIdPar}, function() {
+        //console.log("get address:" + address + " id: " + tabIdPar);
+        
+        //updateSelected(tabIdPar);
         //console.log("chrome.tabs.sendRequest complete");
+        return true;
       });
 }
 
@@ -49,19 +100,23 @@ chrome.tabs.onUpdated.addListener(function(tabId, change, tab) {
     updateAddress(tabId, tab.url);
     //console.log("get chrome.tabs.onUpdated.addListener complete" + tab.url);
   }
+  return true;
 });
 
 chrome.tabs.onSelectionChanged.addListener(function(tabId, info) {
   selectedId = tabId;
   updateSelected(tabId);
+  return true;
 });
 
 // Ensure the current selected tab is set up.
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   updateAddress(tabs[0].id, tabs[0].url);
+  return true;
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener(function(details) {
     //console.log("get onHistoryStateUpdated");
     //chrome.tabs.executeScript(null,{file:"content_script.js"});
+  return true;
 });
