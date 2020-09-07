@@ -17,8 +17,8 @@ chrome.runtime.onMessage.addListener(
     console.log("backend script chrome.runtime.onMessage.addListener");
     console.log("backend script request");
     if (request.contentScriptQuery == "currenturl") {
-      console.log("backend script currenturl");
       var url = request.urlATS +request.item;
+      console.log("backend script currenturl: " + url);
       fetch(url)
           .then(response => response.text())
           .then(function(text) {
@@ -33,6 +33,8 @@ chrome.runtime.onMessage.addListener(
           })
           .catch((err) => {
             console.log('backend script error:', err);
+            addresses[request.tabIdPar] = '';
+            updateSelected(request.tabIdPar);
           })
     }
     else if (request.contentScriptQuery == "currenturlnotfound") {
@@ -41,30 +43,61 @@ chrome.runtime.onMessage.addListener(
         updateSelected(request.tabIdPar);
     }
     else if (request.contentScriptQuery == "link") {
-      console.log("backend script link");
       var url = request.urlATS +request.item;
-      fetch(url)
-          .then(response => response.text())
-          .then(function(text) {
-                sendResponse(text);
-          })
-          .catch((err) => {
-                sendResponse('error: ' + err);
-                console.log('backend script error:', err);
-          })
+      console.log("backend script link:" + url);
+      
+        var isTimeout = false;
+        new Promise(function(resolve, reject) {
+            const TO = setTimeout(function() {
+                isTimeout = true;
+                sendResponse("error: " + "Fetch timeout");
+                console.log("backend script error: " + "Fetch timeout");
+            }, 100000);
+
+          fetch(url)
+              .then(response => response.text())
+              .then(function(text) {
+                    clearTimeout(TO)
+                    if(!isTimeout) {
+                        sendResponse(text);
+                    }
+              })
+              .catch((err) => {
+                    if( !isTimeout ){
+                        sendResponse("error: " + err);
+                    }
+                    console.log("backend script error: " + err);
+              })
+        })
     }
     else if (request.contentScriptQuery == "email") {
-      console.log("backend script email");
       var url = request.urlATS +request.item;
-      fetch(url)
-          .then(response => response.text())
-          .then(function(text) {
-                sendResponse(text);
-          })
-          .catch((err) => {
-                sendResponse('error: ' + err);
-                console.log('backend script error:', err);
-          })
+      console.log("backend script email:" + url);
+      
+      
+        var isTimeout = false;
+        new Promise(function(resolve, reject) {
+            const TO = setTimeout(function() {
+                isTimeout = true;
+                sendResponse("error: " + "Fetch timeout");
+                console.log("backend script error: " + "Fetch timeout");
+            }, 100000);
+
+          fetch(url)
+              .then(response => response.text())
+              .then(function(text) {
+                    clearTimeout(TO)
+                    if(!isTimeout) {
+                        sendResponse(text);
+                    }
+              })
+              .catch((err) => {
+                    if( !isTimeout ){
+                        sendResponse("error: " + err);
+                    }
+                    console.log("backend script error: " + err);
+              })
+        })
     }
     return true;
   }

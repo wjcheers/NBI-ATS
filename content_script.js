@@ -127,13 +127,15 @@ function searchCATSLoop() {
     if (!isSearching) {
         if (emailOuterCur < emailOuterCnt) {
             isSearching = 1;
-            //checkEmailInATS(emailA[emailOuterCur]);
-            checkEmailInATSBackground(emailA[emailOuterCur]);
+            setTimeout(function () {
+                checkEmailInATSBackground(emailA[emailOuterCur]);
+            }, 20); // 0.02 sec
         } else if (linkAOuterCur < linkAOuterCnt) {
             isSearching = 1;
             console.log('linkAOuterCur: ' + linkAOuterCur);
-            //checkLinkInATS(linkA[linkAOuterCur]);
-            checkLinkInATSBackground(linkA[linkAOuterCur]);
+            setTimeout(function () {
+                checkLinkInATSBackground(linkA[linkAOuterCur]);
+            }, 20); // 0.02 sec
         }
     }
 }
@@ -501,6 +503,9 @@ function handleEmailResponse(text) {
                     '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
 
             }
+            else {
+                console.log('unexpected...');
+            }
         }
     } else if (document.URL.indexOf('mail.google.com') >= 0) {
         if (doc.indexOf(":candidateID=") >= 0) {
@@ -529,6 +534,9 @@ function handleEmailResponse(text) {
                 emailOuter[emailOuterCur].outerHTML +=
                     '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
 
+            }
+            else {
+                console.log('unexpected...');
             }
         }
     }
@@ -599,6 +607,9 @@ function handleLinkResponse(text) {
         } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
             linkAOuter[linkAOuterCur].outerHTML +=
                 '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
+        }
+        else {
+            console.log('unexpected...');
         }
     }
     //console.log("handleLinkResponse: Cnt: " + linkAOuterCnt + ", Cur: " + linkAOuterCur);
