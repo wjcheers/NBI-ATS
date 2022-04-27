@@ -185,7 +185,9 @@ function findLinkAndEmail() {
         }
     } else if ((window.location.hostname.indexOf("linkedin.com") >= 0) && (document.URL.indexOf('linkedin.com/search/') >= 0)) {
         //console.log("linkedin.com/search/");
-        var anchor = document.getElementsByClassName("search-result__result-link ember-view");
+        //var anchor = document.getElementsByClassName("search-result__result-link ember-view");
+        // 2021/1/19 linkedin change the class name.
+        var anchor = document.getElementsByClassName("app-aware-link");
         var href;
         for (i = 0; i < anchor.length; i++) {
             // Get the href
@@ -194,9 +196,18 @@ function findLinkAndEmail() {
             // Check if it's a /in/ link
             if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
                 anchor[i].className += " NBI_ATS_Checked";
+                /*
                 if (href.substr(0, 4) == '/in/') {
                     linkAOuter[linkAOuterCnt] = anchor[i];
                     linkA[linkAOuterCnt] = 'linkedin.com' + linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "");
+                    console.log("findLinkAndEmail linkedin.com/search/, link: " + linkA[linkAOuterCnt]);
+                    linkAOuterCnt++;
+                }
+                */
+                // 2021/1/19 linkedin change the href.
+                if (href.indexOf("linkedin.com/in/") >= 0) {
+                    linkAOuter[linkAOuterCnt] = anchor[i];
+                    linkA[linkAOuterCnt] = href.replace(/\/$/, "");
                     console.log("findLinkAndEmail linkedin.com/search/, link: " + linkA[linkAOuterCnt]);
                     linkAOuterCnt++;
                 }
