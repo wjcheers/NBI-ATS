@@ -123,6 +123,12 @@ if (window == top) {
     });
 }
 
+function remove_url_params_n_last_slash(url)
+{
+    var url_temp = (new URL(url));
+    return url_temp.hostname + url_temp.pathname.replace(/\/$/, "");
+}
+
 function searchCATSLoop() {
     if (!isSearching) {
         if (emailOuterCur < emailOuterCnt) {
@@ -159,6 +165,7 @@ function findLinkAndEmail() {
                     emailA[emailOuterCnt] = linkOuter[i].innerText;
                     emailOuterCnt++;
                 } else if (linkOuter[i].innerText.indexOf("linkedin.com/in/") >= 0) {
+                    // linkOuter[i].tagName.indexOf("A") == 0  // tagName = "A", find <a></a>
                     console.log("findLinkAndEmail linkedin.com/in/, link: " + linkOuter[i].innerText);
                     linkAOuter[linkAOuterCnt] = linkOuter[i];
                     linkA[linkAOuterCnt] = linkOuter[i].innerText;
@@ -167,7 +174,7 @@ function findLinkAndEmail() {
             }
         }
         // linkedin personal page, sidebar recommand connections
-        var anchor = document.getElementsByClassName("pv-browsemap-section__member ember-view");
+        var anchor = document.getElementsByClassName("ember-view");
         for (i = 0; i < anchor.length; i++) {
             // Get the href
             //console.log( anchor[i].getAttribute('href') + ' ' + anchor[i].getAttribute('href').substr(0, 4));
@@ -175,7 +182,7 @@ function findLinkAndEmail() {
             // Check if it's a /in/ link
             if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
                 anchor[i].className += " NBI_ATS_Checked";
-                if (href.substr(0, 4) == '/in/') {
+                if (href && href.substr(0, 4) == '/in/') {
                     linkAOuter[linkAOuterCnt] = anchor[i];
                     linkA[linkAOuterCnt] = 'linkedin.com' + linkAOuter[linkAOuterCnt].getAttribute('href').replace(/\/$/, "");
                     console.log("findLinkAndEmail linkedin.com/in/, link: " + linkA[linkAOuterCnt]);
@@ -207,7 +214,10 @@ function findLinkAndEmail() {
                 // 2021/1/19 linkedin change the href.
                 if (href.indexOf("linkedin.com/in/") >= 0) {
                     linkAOuter[linkAOuterCnt] = anchor[i];
-                    linkA[linkAOuterCnt] = href.replace(/\/$/, "");
+                                        
+                    //linkA[linkAOuterCnt] = href.replace(/\/$/, "");
+                    //console.log("findLinkAndEmail linkedin.com/search/, link: " + href);
+                    linkA[linkAOuterCnt] = remove_url_params_n_last_slash(href);                                        
                     console.log("findLinkAndEmail linkedin.com/search/, link: " + linkA[linkAOuterCnt]);
                     linkAOuterCnt++;
                 }
