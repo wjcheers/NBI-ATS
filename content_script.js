@@ -115,6 +115,8 @@ if (window == top) {
                     triggerNext();
                 } else if ((url.indexOf('h.liepin.com') >= 0) && (url.indexOf('resumemanage') >= 0)) {
                     triggerNext();
+                } else if (url.indexOf('cakeresume.com') >= 0) {
+                    triggerNext();
                 }
             }
         });
@@ -349,6 +351,64 @@ function findLinkAndEmail() {
                 }
             }
         }
+    } else if (window.location.hostname.indexOf('cakeresume.com') >= 0){
+        var anchor = document.getElementsByTagName('a');
+        var href;
+
+        for (i = 0; i < anchor.length; i++) {
+            // Get the href
+            href = anchor[i].getAttribute('href');
+            // Check if it's a mailto link
+            if (href.substr(0, 7) == 'mailto:') {
+                if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                    anchor[i].className += " NBI_ATS_Checked";
+                    if (validateEmail(anchor[i].innerText)) {
+                        console.log("findLinkAndEmail cakeresume.com, email: " + anchor[i].innerText);
+                        emailOuter[emailOuterCnt] = anchor[i];
+                        emailA[emailOuterCnt] = anchor[i].innerText;
+                        emailOuterCnt++;
+                    }
+                }
+            }
+        }
+        
+        for (i = 0; i < anchor.length; i++) {
+            href = anchor[i].getAttribute('href');
+            //console.log("cakeresume1: " + href);
+
+            if (anchor[i].className.indexOf("NBI_ATS_Checked") < 0) {
+                //console.log(anchor[i]);
+                anchor[i].className += " NBI_ATS_Checked";
+                //console.log("cakeresume2: " + anchor[i].className);
+                if (((anchor[i].className.indexOf("ResumeListItem") >= 0) ||
+                     (anchor[i].className.indexOf("UserPortfoliosPage") >= 0) ||
+                     (anchor[i].className.indexOf("sidebar__profile__user") >= 0) ||
+                     (anchor[i].className.indexOf("PortfolioListItem_name") >= 0) ||
+                     (anchor[i].className.indexOf("ResumeModal_userName") >= 0) ||
+                     (anchor[i].className.indexOf("Avatar_wrapper") >= 0))
+                    &&
+                     (href.indexOf('/me/') >= 0) ||
+                     (href.indexOf('/resumes/') >= 0) ||
+                     (href.indexOf('/search/') >= 0) ||
+                     (href.indexOf('/portfolios/') >= 0)
+                    ) {
+                    if (href.indexOf("cakeresume.com") >= 0) { // cakeresume.com/me/...  or cakeresume.com/resumes/...
+                        href = remove_url_params_n_last_slash(href);
+                    }
+                    else {
+                        href = 'https://www.cakeresume.com' + href;
+                    }
+
+                    href = href.replace('/portfolios', '');
+                    href = href.toLowerCase();
+
+                    linkAOuter[linkAOuterCnt] = anchor[i];                    
+                    linkA[linkAOuterCnt] = href;
+                    console.log("findLinkAndEmail cakeresume.com, link: " + linkA[linkAOuterCnt]);
+                    linkAOuterCnt++;
+                }
+            }
+        }
     } else {
         //console.log("ignore url");
     }
@@ -546,6 +606,21 @@ function handleEmailResponse(text) {
             console.log('unexpected...');
         }
     } else if (document.URL.indexOf('maimai.cn') >= 0) {
+        if (emailOuterCur < emailOuterCnt) {
+            if (doc.indexOf(":candidateID=") >= 0) {
+                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+            } else if (doc.indexOf(emailOuter[emailOuterCur].innerText + ":0") >= 0) {
+                //emailOuter[emailOuterCur].outerHTML += 'NBI ATS: Not found'; 
+            } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
+                emailOuter[emailOuterCur].outerHTML +=
+                    '<a target="_blank" style="color: red" href="' + urlATS + '" style="text-decoration: none;" class="NBI_ATS_Checked">NBI ATS: Please login first!</a>';
+
+            }
+            else {
+                console.log('unexpected...');
+            }
+        }
+    } else if (document.URL.indexOf('cakeresume.com') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
                 emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
