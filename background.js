@@ -110,7 +110,6 @@ function updateAddress(tabIdPar, url) {
           console.warn('sendMessage failed:', chrome.runtime.lastError.message);
           return;
         }
-
         //console.log("get address:" + address + " id: " + tabIdPar);
 
         //updateSelected(tabIdPar);
