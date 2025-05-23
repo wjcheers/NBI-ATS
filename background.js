@@ -105,11 +105,11 @@ chrome.runtime.onMessage.addListener(
     
 
 function updateAddress(tabIdPar, url) {
-      chrome.tabs.sendRequest(tabIdPar, {tabIdPar: tabIdPar}, function() {
+      chrome.tabs.sendMessage(tabIdPar, {tabIdPar: tabIdPar}, function() {
         //console.log("get address:" + address + " id: " + tabIdPar);
         
         //updateSelected(tabIdPar);
-        //console.log("chrome.tabs.sendRequest complete");
+        //console.log("chrome.tabs.sendMessage complete");
         return true;
       });
 }
@@ -117,14 +117,14 @@ function updateAddress(tabIdPar, url) {
 function updateSelected(tabIdPar) {
   selectedAddress = addresses[tabIdPar];
   if (selectedAddress) {
-    chrome.pageAction.setTitle({tabId:tabIdPar, title:selectedAddress});
-    chrome.pageAction.show(tabIdPar);
-    chrome.pageAction.setIcon({path: "jecho.png", tabId: tabIdPar});
+    chrome.action.setTitle({tabId:tabIdPar, title:selectedAddress});
+    chrome.action.enable(tabIdPar);
+    chrome.action.setIcon({path: "jecho.png", tabId: tabIdPar});
   }
   else {
-    chrome.pageAction.setTitle({tabId:tabIdPar, title: ""});
-    chrome.pageAction.hide(tabIdPar);
-    chrome.pageAction.setIcon({path: "jecho_briefcase.png", tabId: tabIdPar});
+    chrome.action.setTitle({tabId:tabIdPar, title: ""});
+    chrome.action.disable(tabIdPar);
+    chrome.action.setIcon({path: "jecho_briefcase.png", tabId: tabIdPar});
   }
 }
 
@@ -136,9 +136,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, change, tab) {
   return true;
 });
 
-chrome.tabs.onSelectionChanged.addListener(function(tabId, info) {
-  selectedId = tabId;
-  updateSelected(tabId);
+chrome.tabs.onActivated.addListener(function(activeInfo) {
+  selectedId = activeInfo.tabId;
+  updateSelected(activeInfo.tabId);
   return true;
 });
 

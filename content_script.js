@@ -28,7 +28,7 @@ console.log("content script enter");
 
 
 if (window == top) {
-    chrome.extension.onRequest.addListener(function (req, sender, sendResponse) {
+    chrome.runtime.onMessage.addListener(function (req, sender, sendResponse) {
 
         chrome.storage.local.get('urlAddr', function (data) {
             console.log("content script enter chrome.storage.local.get");
@@ -560,7 +560,7 @@ function handleEmailResponse(text) {
         if (doc.indexOf(":candidateID=") >= 0) {
             if (emailOuterCnt) {
                 emailOuter[emailOuterCur].outerHTML +=
-                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             }
         } else if (doc.indexOf(":0") >= 0) {
             // not found
@@ -576,7 +576,7 @@ function handleEmailResponse(text) {
     } else if (document.URL.indexOf('github.com') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
-                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             } else if (doc.indexOf(emailOuter[emailOuterCur].innerText + ":0") >= 0) {
                 //emailOuter[emailOuterCur].outerHTML += 'NBI ATS: Not found'; 
             } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
@@ -592,7 +592,7 @@ function handleEmailResponse(text) {
         if (doc.indexOf(":candidateID=") >= 0) {
             if (emailOuterCnt) {
                 emailOuter[emailOuterCur].outerHTML +=
-                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             }
         } else if (doc.indexOf(":0") >= 0) {
             // not found
@@ -608,7 +608,7 @@ function handleEmailResponse(text) {
     } else if (document.URL.indexOf('maimai.cn') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
-                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             } else if (doc.indexOf(emailOuter[emailOuterCur].innerText + ":0") >= 0) {
                 //emailOuter[emailOuterCur].outerHTML += 'NBI ATS: Not found'; 
             } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
@@ -623,7 +623,7 @@ function handleEmailResponse(text) {
     } else if (document.URL.indexOf('cakeresume.com') >= 0) {
         if (emailOuterCur < emailOuterCnt) {
             if (doc.indexOf(":candidateID=") >= 0) {
-                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                emailOuter[emailOuterCur].outerHTML += '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             } else if (doc.indexOf(emailOuter[emailOuterCur].innerText + ":0") >= 0) {
                 //emailOuter[emailOuterCur].outerHTML += 'NBI ATS: Not found'; 
             } else if (doc.indexOf("cats_authenticationFailed") >= 0) {
@@ -696,7 +696,7 @@ function handleLinkResponse(text) {
                 // If the element has no parent element, setting its outerHTML property will not change it or its descendants.
                 // Many browsers will also throw an exception. 
                 linkAOuter[linkAOuterCur].outerHTML +=
-                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.extension.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
+                    '<a target="_blank" style="color: red" href="' + urlATS + '?m=candidates&amp;a=show&amp;candidateID=' + doc.substr(doc.indexOf(":candidateID=") + ":candidateID=".length) + '" style="text-decoration: none;">' + '<img src="' + chrome.runtime.getURL("jecho.png") + '" alt="NBI ATS" height="20px">' + '</a>';
             }
         } else if (doc.indexOf(":0") >= 0) {
             // not found...
