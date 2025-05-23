@@ -106,8 +106,12 @@ chrome.runtime.onMessage.addListener(
 
 function updateAddress(tabIdPar, url) {
       chrome.tabs.sendMessage(tabIdPar, {tabIdPar: tabIdPar}, function() {
+        if (chrome.runtime.lastError) {
+          console.warn('sendMessage failed:', chrome.runtime.lastError.message);
+          return;
+        }
         //console.log("get address:" + address + " id: " + tabIdPar);
-        
+
         //updateSelected(tabIdPar);
         //console.log("chrome.tabs.sendMessage complete");
         return true;
