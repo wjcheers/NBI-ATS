@@ -71,9 +71,10 @@ window.onload = function() {
             urlAddr = data.urlAddr;            
             document.getElementById("urlAddr").value = urlAddr;
         }
-        chrome.tabs.getSelected(null, function (tab) {
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            var tab = tabs[0];
             console.log("current tab: " + tab.id);
-            chrome.pageAction.getTitle({tabId:tab.id}, function (data) {
+            chrome.action.getTitle({tabId:tab.id}, function (data) {
                 console.log("getTitle: " + data);
                 if(data != "NBI ATS") {
                     var str = data; // contain &amp; change to &

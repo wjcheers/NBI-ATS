@@ -3,7 +3,7 @@
   "version": "0.26",
   "description": "Finds link and email address in the web page",
   "icons": { "128": "jecho.png" },
-  "background": { "scripts": ["background.js"] },
+  "background": { "service_worker": "background.js" },
   "content_scripts": [
     { "matches": ["*://*/*"], "js": ["content_script.js"], "run_at": "document_end" }
   ],
@@ -11,7 +11,9 @@
   "permissions": [
     "tabs",
     "storage",
-    "webNavigation",
+    "webNavigation"
+  ],
+  "host_permissions": [
     "*://*.liepin.com/*",
     "*://*.maimai.cn/*",
     "*://*.linkedin.com/*",
@@ -22,11 +24,14 @@
     "*://*.behance.net/*",
     "*://*.cakeresume.com/*"
   ],
-  "page_action": {
-      "default_name": "NBI ATS",
+  "action": {
+      "default_title": "NBI ATS",
       "default_icon": "jecho.png",
       "default_popup": "popup.html"
   },
-  "web_accessible_resources": ["jecho.png"],
-  "manifest_version": 2
+  "web_accessible_resources": [{
+      "resources": ["jecho.png"],
+      "matches": ["<all_urls>"]
+  }],
+  "manifest_version": 3
 }
